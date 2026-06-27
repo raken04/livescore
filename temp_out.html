@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Match Details - LiveScore PRO</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <script>
+ tailwind.config = {
+ theme: {
+ extend: {
+ colors: {
+ bgDark: '#0f1115',
+ cardBg: '#1a1d24',
+ textMain: '#e1e6f0',
+ textMuted: '#a0aab8',
+ accentColor: '#00ff88',
+ hotColor: '#ff3366',
+ borderColor: '#2d333b'
+ },
+ fontFamily: {
+ sans: ['Inter', 'system-ui', 'sans-serif'],
+ }
+ }
+ }
+ }
+ </script>
+ <style>
+ @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+ body {
+ background-color: #0f1115;
+ color: #e1e6f0;
+ font-family: 'Inter', sans-serif;
+ }
+ .hide-scrollbar::-webkit-scrollbar {
+ display: none;
+ }
+ /* Smooth tab transition */
+ .tab-content {
+ display: none;
+ animation: fadeIn 0.3s ease-in-out;
+ }
+ .tab-content.active {
+ display: block;
+ }
+ @keyframes fadeIn {
+ from { opacity: 0; transform: translateY(5px); }
+ to { opacity: 1; transform: translateY(0); }
+ }
+ </style>
+</head>
+<body>
+ <div class="max-w-[800px] mx-auto py-6 px-4">
+ <!-- TOP NAV: Permit Easy Reversal (Keep Users in Control) -->
+ <div class="mb-6">
+ <a href="http://localhost" class="inline-flex items-center gap-2 text-[#a0aab8] hover:text-white bg-[#1a1d24] px-4 py-2 rounded-lg border border-[#2d333b] transition-colors">
+ <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+ <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+ </svg>
+ Kembali
+ </a>
+ </div>
+ <!-- HEADER MATCH: Reduce Short-Term Memory Load (Sticky / Always on Top) -->
+ <div class="bg-[#1a1d24] rounded-2xl border border-[#2d333b] p-6 mb-6 shadow-lg sticky top-4 z-50">
+ <div class="text-center text-[#a0aab8] text-sm font-semibold mb-6 flex justify-center items-center gap-2">
+ <img src="https://media.api-sports.io/football/leagues/1.png" alt="League" class="w-5 h-5 bg-white rounded-full" onerror="this.style.display='none'">
+ World Cup - 2026
+ </div>
+ <div class="flex justify-between items-center">
+ <!-- Home Team -->
+ <div class="flex flex-col items-center w-1/3">
+ <div class="w-16 h-16 bg-[#2d333b] rounded-full flex justify-center items-center p-2 mb-3 overflow-hidden">
+ <img src="https://media.api-sports.io/football/teams/6.png" alt="Brazil" class="w-full h-full object-contain" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23a0aab8\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+ </div>
+ <h3 class="text-lg font-bold text-center">Brazil</h3>
+ </div>
+ <!-- Score -->
+ <div class="w-1/3 text-center flex flex-col items-center">
+ <span class="text-xs font-bold px-3 py-1 rounded-full mb-3 bg-[#2d333b] text-[#a0aab8]">
+ FT
+ </span>
+ <div class="text-4xl md:text-5xl font-extrabold tracking-tight">
+ 3 <span class="text-[#a0aab8] mx-2">:</span> 0
+ </div>
+ </div>
+ <!-- Away Team -->
+ <div class="flex flex-col items-center w-1/3">
+ <div class="w-16 h-16 bg-[#2d333b] rounded-full flex justify-center items-center p-2 mb-3 overflow-hidden">
+ <img src="https://media.api-sports.io/football/teams/2386.png" alt="Haiti" class="w-full h-full object-contain" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23a0aab8\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'">
+ </div>
+ <h3 class="text-lg font-bold text-center">Haiti</h3>
+ </div>
+ </div>
+ </div>
+ <!-- TABS NAV: Kesinambungan & Konsistensi -->
+ <div class="flex bg-[#1a1d24] rounded-xl border border-[#2d333b] p-1 mb-6">
+ <button onclick="openTab('events')" id="tab-btn-events" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-accentColor text-[#0f1115] transition-all">Match Events</button>
+ <button onclick="openTab('stats')" id="tab-btn-stats" class="flex-1 py-2 text-sm font-semibold rounded-lg text-[#a0aab8] hover:text-white transition-all">Statistics</button>
+ <button onclick="openTab('lineups')" id="tab-btn-lineups" class="flex-1 py-2 text-sm font-semibold rounded-lg text-[#a0aab8] hover:text-white transition-all">Line-Ups</button>
+ </div>
+ <!-- TAB CONTENT: EVENTS -->
+ <div id="tab-events" class="tab-content active bg-[#1a1d24] rounded-xl border border-[#2d333b] p-6">
+ <h3 class="text-lg font-bold mb-6 text-white border-b border-[#2d333b] pb-2">Timeline Kejadian</h3>
+ <div class="relative space-y-6 py-4">
+ <!-- Central Line -->
+ <div class="absolute left-1/2 top-0 bottom-0 w-px bg-[#2d333b] transform -translate-x-1/2"></div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 pl-6 md:pl-8 text-left">
+ <span class="text-xs font-bold text-accentColor mb-1 block">4' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 shadow-md mr-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🟨
+ </div>
+ <div class="overflow-hidden text-left">
+ <div class="font-semibold text-sm truncate">Carlens Arcus</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ Yellow Card
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">23' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ ⚽
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">M. Cunha</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ Normal Goal (Assist: None)
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">36' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ ⚽
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">M. Cunha</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ Normal Goal (Assist: Vinicius Junior)
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">40' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">Raphinha</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: Raphinha | Out: Rayan
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 pl-6 md:pl-8 text-left">
+ <span class="text-xs font-bold text-accentColor mb-1 block">45' +4</span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 shadow-md mr-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🟨
+ </div>
+ <div class="overflow-hidden text-left">
+ <div class="font-semibold text-sm truncate">Frantzdy Pierrot</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ Yellow Card
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">45' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ ⚽
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">Vinicius Junior</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ Normal Goal (Assist: Lucas Paqueta)
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 pl-6 md:pl-8 text-left">
+ <span class="text-xs font-bold text-accentColor mb-1 block">46' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 shadow-md mr-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden text-left">
+ <div class="font-semibold text-sm truncate">C. Arcus</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: C. Arcus | Out: D. Simon
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 pl-6 md:pl-8 text-left">
+ <span class="text-xs font-bold text-accentColor mb-1 block">46' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 shadow-md mr-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden text-left">
+ <div class="font-semibold text-sm truncate">F. Pierrot</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: F. Pierrot | Out: W. Isidor
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 pl-6 md:pl-8 text-left">
+ <span class="text-xs font-bold text-accentColor mb-1 block">62' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 shadow-md mr-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden text-left">
+ <div class="font-semibold text-sm truncate">J. Casimir</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: J. Casimir | Out: L. Deedson
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">64' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">Lucas Paqueta</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: Lucas Paqueta | Out: G. Martinelli
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">64' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">M. Cunha</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: M. Cunha | Out: Endrick
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">65' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🟨
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">Douglas Santos</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ Yellow Card
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 pl-6 md:pl-8 text-left">
+ <span class="text-xs font-bold text-accentColor mb-1 block">71' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 shadow-md mr-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden text-left">
+ <div class="font-semibold text-sm truncate">R. Providence</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: R. Providence | Out: L. Joseph
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 pl-6 md:pl-8 text-left">
+ <span class="text-xs font-bold text-accentColor mb-1 block">72' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 shadow-md mr-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🟨
+ </div>
+ <div class="overflow-hidden text-left">
+ <div class="font-semibold text-sm truncate">Danley Jean Jacques</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ Yellow Card
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">81' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">Bruno Guimaraes</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: Bruno Guimaraes | Out: Ederson
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 pr-6 md:pr-8 text-right">
+ <span class="text-xs font-bold text-accentColor mb-1 block">81' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 flex-row-reverse text-right shadow-md ml-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden">
+ <div class="font-semibold text-sm truncate">Vinicius Junior</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: Vinicius Junior | Out: Danilo Santos
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ </div>
+ <div class="relative flex items-center justify-between w-full group">
+ <!-- Dot Timeline di Tengah -->
+ <div class="absolute left-1/2 w-3 h-3 bg-accentColor rounded-full border-[3px] border-[#1a1d24] transform -translate-x-1/2 shadow-[0_0_8px_rgba(0,255,136,0.5)] z-10"></div>
+ <!-- Kiri (Home) -->
+ <div class="w-1/2 opacity-0">
+ </div>
+ <!-- Kanan (Away) -->
+ <div class="w-1/2 pl-6 md:pl-8 text-left">
+ <span class="text-xs font-bold text-accentColor mb-1 block">81' </span>
+ <div class="bg-[#0f1115] border border-[#2d333b] hover:border-[#a0aab8] transition-colors rounded-lg p-3 inline-flex items-center gap-3 shadow-md mr-auto max-w-full">
+ <div class="text-xl flex-shrink-0">
+ 🔄
+ </div>
+ <div class="overflow-hidden text-left">
+ <div class="font-semibold text-sm truncate">J. Bellegarde</div>
+ <div class="text-xs text-[#a0aab8] truncate">
+ In: J. Bellegarde | Out: D. Etienne
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- TAB CONTENT: STATS -->
+ <div id="tab-stats" class="tab-content bg-[#1a1d24] rounded-xl border border-[#2d333b] p-6">
+ <h3 class="text-lg font-bold mb-6 text-white border-b border-[#2d333b] pb-2">Team Statistics</h3>
+ <div class="space-y-4">
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>5</span>
+ <span class="text-[#a0aab8]">Shots on Goal</span>
+ <span>3</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 62.5%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 37.5%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>2</span>
+ <span class="text-[#a0aab8]">Shots off Goal</span>
+ <span>4</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 33.333333333333%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 66.666666666667%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>8</span>
+ <span class="text-[#a0aab8]">Total Shots</span>
+ <span>8</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 50%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 50%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>1</span>
+ <span class="text-[#a0aab8]">Blocked Shots</span>
+ <span>1</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 50%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 50%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>8</span>
+ <span class="text-[#a0aab8]">Shots insidebox</span>
+ <span>5</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 61.538461538462%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 38.461538461538%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>0</span>
+ <span class="text-[#a0aab8]">Shots outsidebox</span>
+ <span>3</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 0%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 100%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>13</span>
+ <span class="text-[#a0aab8]">Fouls</span>
+ <span>15</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 46.428571428571%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 53.571428571429%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>4</span>
+ <span class="text-[#a0aab8]">Corner Kicks</span>
+ <span>4</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 50%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 50%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>8</span>
+ <span class="text-[#a0aab8]">Offsides</span>
+ <span>4</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 66.666666666667%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 33.333333333333%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>57%</span>
+ <span class="text-[#a0aab8]">Ball Possession</span>
+ <span>43%</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 57%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 43%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>1</span>
+ <span class="text-[#a0aab8]">Yellow Cards</span>
+ <span>3</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 25%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 75%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>0</span>
+ <span class="text-[#a0aab8]">Red Cards</span>
+ <span>0</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 50%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 50%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>3</span>
+ <span class="text-[#a0aab8]">Goalkeeper Saves</span>
+ <span>2</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 60%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 40%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>522</span>
+ <span class="text-[#a0aab8]">Total passes</span>
+ <span>399</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 56.677524429967%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 43.322475570033%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>461</span>
+ <span class="text-[#a0aab8]">Passes accurate</span>
+ <span>331</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 58.207070707071%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 41.792929292929%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>88%</span>
+ <span class="text-[#a0aab8]">Passes %</span>
+ <span>83%</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 51.461988304094%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 48.538011695906%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>1.50</span>
+ <span class="text-[#a0aab8]">expected_goals</span>
+ <span>0.25</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 85.714285714286%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 14.285714285714%"></div>
+ </div>
+ </div>
+ <div>
+ <div class="flex justify-between text-sm font-semibold mb-1">
+ <span>-0.69</span>
+ <span class="text-[#a0aab8]">goals_prevented</span>
+ <span>-0.69</span>
+ </div>
+ <div class="flex h-2 w-full rounded-full overflow-hidden bg-[#2d333b]">
+ <div class="bg-accentColor transition-all duration-500" style="width: 50%"></div>
+ <div class="bg-hotColor transition-all duration-500" style="width: 50%"></div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- TAB CONTENT: LINEUPS -->
+ <div id="tab-lineups" class="tab-content bg-[#1a1d24] rounded-xl border border-[#2d333b] p-6">
+ <h3 class="text-lg font-bold mb-6 text-white border-b border-[#2d333b] pb-2">Line-Ups</h3>
+ <div class="flex gap-4">
+ <!-- Home Lineup -->
+ <div class="w-1/2 border-r border-[#2d333b] pr-4">
+ <div class="font-bold text-center mb-2 text-accentColor">4-3-3</div>
+ <div class="font-semibold mb-4 text-[#a0aab8] border-b border-[#2d333b] inline-block pb-1">Starting XI</div>
+ <div class="space-y-3">
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">1</span> 
+ <span class="font-semibold">Alisson</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">13</span> 
+ <span class="font-semibold">Danilo</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">4</span> 
+ <span class="font-semibold">Marquinhos</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">3</span> 
+ <span class="font-semibold">Gabriel Magalhães</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">16</span> 
+ <span class="font-semibold">Douglas Santos</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">8</span> 
+ <span class="font-semibold">Bruno Guimarães</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">5</span> 
+ <span class="font-semibold">Casemiro</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">20</span> 
+ <span class="font-semibold">Lucas Paquetá</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">11</span> 
+ <span class="font-semibold">Raphinha</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">9</span> 
+ <span class="font-semibold">Matheus Cunha</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">7</span> 
+ <span class="font-semibold">Vinícius Júnior</span>
+ </div>
+ </div>
+ <div class="font-semibold mt-8 mb-4 text-[#a0aab8] border-b border-[#2d333b] inline-block pb-1">Substitutes</div>
+ <div class="space-y-3">
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">26</span> 
+ <span>Rayan</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">19</span> 
+ <span>Endrick</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">22</span> 
+ <span>Gabriel Martinelli</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">2</span> 
+ <span>Éderson</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">18</span> 
+ <span>Danilo Santos</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">12</span> 
+ <span>Weverton</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">23</span> 
+ <span>Ederson</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">6</span> 
+ <span>Alex Sandro</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">14</span> 
+ <span>Bremer</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">15</span> 
+ <span>Léo Pereira</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">24</span> 
+ <span>Roger Ibañez</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">17</span> 
+ <span>Fabinho</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">21</span> 
+ <span>Luiz Henrique</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">25</span> 
+ <span>Igor Thiago</span>
+ </div>
+ </div>
+ </div>
+ <!-- Away Lineup -->
+ <div class="w-1/2 pl-4">
+ <div class="font-bold text-center mb-2 text-hotColor">5-4-1</div>
+ <div class="font-semibold mb-4 text-[#a0aab8] border-b border-[#2d333b] inline-block pb-1">Starting XI</div>
+ <div class="space-y-3">
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">1</span> 
+ <span class="font-semibold">Johny Placide</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">2</span> 
+ <span class="font-semibold">Carlens Arcus</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">22</span> 
+ <span class="font-semibold">Jean-Kévin Duverne</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">4</span> 
+ <span class="font-semibold">Ricardo Adé</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">5</span> 
+ <span class="font-semibold">Hannes Delcroix</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">8</span> 
+ <span class="font-semibold">Martin Expérience</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">21</span> 
+ <span class="font-semibold">Josué Casimir</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">17</span> 
+ <span class="font-semibold">Danley Jean Jacques</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">10</span> 
+ <span class="font-semibold">Jean-Ricner Bellegarde</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">15</span> 
+ <span class="font-semibold">Ruben Providence</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono font-bold text-right">20</span> 
+ <span class="font-semibold">Frantzdy Pierrot</span>
+ </div>
+ </div>
+ <div class="font-semibold mt-8 mb-4 text-[#a0aab8] border-b border-[#2d333b] inline-block pb-1">Substitutes</div>
+ <div class="space-y-3">
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">25</span> 
+ <span>Dominique Simon</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">18</span> 
+ <span>Wilson Isidor</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">11</span> 
+ <span>Louicius Don Deedson</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">16</span> 
+ <span>Lenny Joseph</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">7</span> 
+ <span>Derrick Etienne</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">12</span> 
+ <span>Alexandre Pierre</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">23</span> 
+ <span>Josué Duverger</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">3</span> 
+ <span>Keeto Thermoncy</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">13</span> 
+ <span>Duke Lacroix</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">14</span> 
+ <span>Garven-Michee Metusala</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">24</span> 
+ <span>Wilguens Paugain</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">6</span> 
+ <span>Carl Fred Sainté</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">26</span> 
+ <span>Woodensky Pierre</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">9</span> 
+ <span>Duckens Nazon</span>
+ </div>
+ <div class="text-sm flex gap-3 items-center">
+ <span class="w-6 text-[#a0aab8] font-mono text-right">19</span> 
+ <span>Yassin Fortune</span>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ <!-- Script for Tabs (Interaksi Minimal) -->
+ <script>
+ function openTab(tabName) {
+ // Hide all tab contents
+ document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+ // Reset all tab buttons
+ document.querySelectorAll('[id^="tab-btn-"]').forEach(el => {
+ el.classList.remove('bg-accentColor', 'text-[#0f1115]');
+ el.classList.add('text-[#a0aab8]');
+ });
+ // Show selected tab content
+ document.getElementById('tab-' + tabName).classList.add('active');
+ // Highlight selected button
+ const btn = document.getElementById('tab-btn-' + tabName);
+ btn.classList.remove('text-[#a0aab8]');
+ btn.classList.add('bg-accentColor', 'text-[#0f1115]');
+ }
+ </script>
+</body>
+</html>

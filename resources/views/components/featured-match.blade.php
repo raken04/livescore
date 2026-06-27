@@ -7,7 +7,19 @@
     $isLiveStatus = in_array($match['fixture']['status']['short'], ['1H', '2H', 'HT', 'ET', 'BT', 'P', 'SUSP', 'INT', 'LIVE']);
     
     if ($isLiveStatus) {
-        $statusDisplay = "LIVE " . ($match['fixture']['status']['elapsed'] ?? '') . "'";
+        $shortStatus = $match['fixture']['status']['short'];
+        if ($shortStatus === 'HT') {
+            $statusDisplay = "Halftime (HT)";
+        } elseif ($shortStatus === 'INT') {
+            $statusDisplay = "Interrupted (INT)";
+        } elseif ($shortStatus === 'SUSP') {
+            $statusDisplay = "Suspended (SUSP)";
+        } elseif (in_array($shortStatus, ['P', 'PEN'])) {
+            $statusDisplay = "Penalty";
+        } else {
+            $elapsed = $match['fixture']['status']['elapsed'] ?? '';
+            $statusDisplay = "LIVE " . ($elapsed ? $elapsed . "'" : "");
+        }
     } else {
         $statusDisplay = $isUpcoming ? $matchTime : $match['fixture']['status']['short'];
     }
@@ -15,7 +27,7 @@
     $isLive = str_starts_with($statusDisplay, 'LIVE');
 @endphp
 
-<div class="bg-[linear-gradient(135deg,#1f2937_0%,#111827_100%)] rounded-[24px] p-[40px] mb-[40px] border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.4)] relative overflow-hidden">
+<a href="{{ route('livescore.show', ['id' => $match['fixture']['id'], 'source' => $match['_source'] ?? 'apisports']) }}" class="block bg-[linear-gradient(135deg,#1f2937_0%,#111827_100%)] rounded-[24px] p-[40px] mb-[40px] border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.4)] relative overflow-hidden transition-all duration-300 hover:border-gray-500 hover:-translate-y-1">
     <div class="absolute -top-1/2 -right-1/2 w-full h-full bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_60%)] pointer-events-none"></div>
 
     <div class="absolute top-[20px] left-[20px] bg-[#ff3366] text-white py-[6px] px-[16px] rounded-[20px] text-[12px] font-extrabold tracking-[1px] shadow-[0_0_15px_rgba(255,51,102,0.5)] z-10">
@@ -51,4 +63,4 @@
             </div>
         </div>
     </div>
-</div>
+</a>

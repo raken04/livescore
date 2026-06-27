@@ -53,13 +53,34 @@
 
         <x-date-picker :selected-date="$selectedDate" :timezone="$timezone" />
 
+        @if(session('error'))
+            <div class="bg-red-500/10 border border-red-500/30 text-red-400 p-6 rounded-xl text-center mb-6">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if(count($leagues) > 0)
             <x-filter-bar :leagues="$leagues" :active-league="$activeLeague" :selected-date="$selectedDate" />
             
             <div class="flex items-center justify-between mb-6">
-                <p class="text-[#a0aab8] text-sm">
-                    Menampilkan {{ $totalMatches }} pertandingan
-                </p>
+                <div class="flex items-center gap-4">
+                    <p class="text-[#a0aab8] text-sm">
+                        Menampilkan {{ $totalMatches }} pertandingan
+                    </p>
+                    
+                    @if($activeLeague !== 'All')
+                        @php
+                            $activeLeagueObj = collect($leagues)->firstWhere('id', $activeLeague);
+                            $activeLeagueName = $activeLeagueObj['name'] ?? 'Liga';
+                            $activeLeagueSeason = $activeLeagueObj['season'] ?? date('Y');
+                        @endphp
+                        <a href="{{ route('standings.index', ['league' => $activeLeague, 'league_name' => $activeLeagueName, 'season' => $activeLeagueSeason]) }}" 
+                           class="bg-accentColor/10 text-accentColor border border-accentColor/30 hover:bg-accentColor/20 px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_10px_rgba(0,255,136,0.1)]">
+                            🏆 Lihat Klasemen {{ $activeLeagueName }}
+                        </a>
+                    @endif
+                </div>
+
                 <a href="{{ url()->current() }}?{{ http_build_query(request()->query()) }}" class="text-xs text-accentColor border border-accentColor/30 hover:bg-accentColor/10 px-3 py-1 rounded-full transition-colors">
                     ↻ Refresh
                 </a>

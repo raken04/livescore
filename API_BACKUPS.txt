@@ -1,0 +1,105 @@
+=== KODE BACKUP APISPORTSDB (ApiFootballService.php) ===
+
+public function getFixturesByDate(string $date, string $timezone)
+{
+    // Kunci cache yang unik berdasarkan tanggal dan zona waktu
+    $cacheKey = "fixtures_{$date}_{$timezone}";
+    
+    // Cek apakah tanggal yang dicari adalah hari ini atau besok.
+    $isPastDate = strtotime($date) < strtotime(date('Y-m-d'));
+    
+    $ttl = $isPastDate ? now()->addDay() : now()->addMinutes(1);
+
+    return Cache::remember($cacheKey, $ttl, function () use ($date, $timezone) {
+        $apiUrl = env('API_FOOTBALL_URL');
+        $apiKey = env('API_FOOTBALL_KEY');
+
+        $response = Http::withoutVerifying()->withHeaders([
+            'x-apisports-key' => $apiKey,
+        ])->get("{$apiUrl}/fixtures", [
+            'date' => $date,
+            'timezone' => $timezone
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return $data['response'] ?? [];
+        }
+
+        return [];
+    });
+}
+
+public function getStandings(int $leagueId, int $season)
+{
+    $cacheKey = "standings_{$leagueId}_{$season}";
+    $ttl = now()->addHour(); // Cache klasemen selama 1 jam agar hemat kuota
+
+    return Cache::remember($cacheKey, $ttl, function () use ($leagueId, $season) {
+        $apiUrl = env('API_FOOTBALL_URL');
+        $apiKey = env('API_FOOTBALL_KEY');
+
+        $response = Http::withoutVerifying()->withHeaders([
+            'x-apisports-key' => $apiKey,
+        ])->get("{$apiUrl}/standings", [
+            'league' => $leagueId,
+            'season' => $season
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return $data['response'][0]['league']['standings'] ?? [];
+        }
+
+        return [];
+    });
+}
+
+
+=== KODE BACKUP THESPORTSDB (TheSportsDbService.php) ===
+
+public function getStandings(int $sportsDbLeagueId, string $season)
+{
+    $cacheKey = "tsdb_standings_{$sportsDbLeagueId}_{$season}";
+    $ttl = now()->addHour(); // Cache 1 jam
+
+    return Cache::remember($cacheKey, $ttl, function () use ($sportsDbLeagueId, $season) {
+        $url = "https://www.thesportsdb.com/api/v1/json/3/lookuptable.php";
+        
+        // TheSportsDB API is free, no key needed for endpoint 3 basic usage
+        $response = Http::withoutVerifying()->get($url, [
+            'l' => $sportsDbLeagueId,
+            's' => $season
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            
+            // TheSportsDB returns { "table": [ ... ] }
+            $table = $data['table'] ?? [];
+
+            if (empty($table)) {
+                return [];
+            }
+
+            // Kita format array "flat" ini menjadi dikelompokkan berdasarkan "strGroup"
+            // agar struktur View kita (yang sudah ada foreach grup) tetap bisa digunakan!
+            $groupedStandings = [];
+
+            foreach ($table as $row) {
+                // Jika null, berarti liga biasa (kita beri nama 'Klasemen')
+                $groupName = $row['strGroup'] ?? 'Klasemen'; 
+                
+                if (!isset($groupedStandings[$groupName])) {
+                    $groupedStandings[$groupName] = [];
+                }
+                
+                $groupedStandings[$groupName][] = $row;
+            }
+
+            return $groupedStandings;
+        }
+
+        return [];
+    });
+}

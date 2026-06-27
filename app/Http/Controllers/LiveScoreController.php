@@ -18,10 +18,10 @@ class LiveScoreController extends Controller
     public function index(Request $request)
     {
         // 1. Ambil Parameter dari URL (Contoh: ?date=2026-06-16&league=Premier+League)
-        // Default tanggal adalah hari ini
-        $dateParam = $request->query('date', date('Y-m-d'));
-        $activeLeagueId = $request->query('league', 'All'); // Kita sekarang menangkap ID, bukan Nama
         $timezone = $request->query('timezone', 'Asia/Jakarta'); // Ambil zona waktu dari request, default ke Asia/Jakarta
+        // Default tanggal adalah hari ini berdasarkan zona waktu yang dipilih
+        $dateParam = $request->query('date', \Carbon\Carbon::now($timezone)->format('Y-m-d'));
+        $activeLeagueId = $request->query('league', 'All'); // Kita sekarang menangkap ID, bukan Nama
 
         // Validasi format tanggal menggunakan Carbon, fallback ke hari ini jika tidak valid
         try {
@@ -201,6 +201,32 @@ class LiveScoreController extends Controller
             }
         }
 
-        return compact('live', 'upcoming', 'finished');
+        return [
+            'live' => $live,
+            'upcoming' => $upcoming,
+            'finished' => $finished
+        ];
+    }
+
+    /**
+     * Tampilkan detail pertandingan (Events, Lineups, Statistics)
+     */
+    public function show(Request $request, $id)
+    {
+        $source = $request->query('source', 'apisports');
+        
+        if ($source === 'github') {
+            return redirect()->back()->with('error', 'Detail pertandingan belum tersedia.');
+        }
+
+        $match = $this->apiService->getMatchDetails($id);
+
+        if (!$match) {
+            return redirect()->route('livescore.index')->with('error', 'Detail pertandingan tidak ditemukan.');
+        }
+
+        return view('livescore.show', [
+            'match' => $match
+        ]);
     }
 }
